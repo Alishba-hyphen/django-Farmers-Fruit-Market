@@ -9,7 +9,6 @@ class Command(BaseCommand):
 
         if Product.objects.exists():
             self.stdout.write(self.style.SUCCESS("Products already exist."))
-            return
 
         products = [
             {
@@ -86,7 +85,17 @@ class Command(BaseCommand):
             },
         ]
 
-        for product in products:
-            Product.objects.create(**product)
+        if not Product.objects.exists():
+            for product in products:
+                Product.objects.create(**product)
 
-        self.stdout.write(self.style.SUCCESS("Products added successfully!"))
+        from django.contrib.auth.models import User
+
+        if not User.objects.filter(username="admin").exists():
+            User.objects.create_superuser(
+                username="admin",
+                email="admin@example.com",
+                password="1234"
+            )
+
+        self.stdout.write(self.style.SUCCESS("Products and admin user added successfully!"))
